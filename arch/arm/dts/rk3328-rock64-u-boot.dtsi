@@ -7,7 +7,7 @@
 #include "rk3328-sdram-lpddr3-1600.dtsi"
 / {
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &emmc;
+		u-boot,spl-boot-order = "same-as-spl", &spi_flash, &sdmmc, &emmc;
 	};
 
 	smbios {
