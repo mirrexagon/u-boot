@@ -51,21 +51,30 @@ class Entry_mkimage(Entry):
         self.ReadEntries()
 
     def ObtainContents(self):
-        # Use a non-zero size for any fake files to keep mkimage happy
-        data, input_fname, uniq = self.collect_contents_to_file(
-            self._mkimage_entries.values(), 'mkimage', 1024)
-        if data is None:
-            return False
-        output_fname = tools.get_output_filename('mkimage-out.%s' % uniq)
-        if self.mkimage.run_cmd('-d', input_fname, *self._args,
-                                output_fname) is not None:
-            self.SetContents(tools.read_file(output_fname))
-        else:
-            # Bintool is missing; just use the input data as the output
-            self.record_missing_bintool(self.mkimage)
-            self.SetContents(data)
+        # For multiple inputs to mkimage, we want to separate them by colons.
+        # This is needed for eg. the rkspi format, which treats the first data
+        # file as the "init" and the second as "boot" and sets the image header
+        # accordingly, then makes the image so that only the first 2 KiB of each
+        # 4KiB block is used.
 
-        return True
+        data_filenames = []
+        for entry in self._mkimage_entries.values():
+            # First get the input data and put it in a file. If any entry is not
+            # available, try later.
+            if not entry.ObtainContents():
+                return False
+
+            input_fname = tools.get_output_filename('mkimage-in.%s' % entry.GetUniqueName())
+            data_filenames.append(input_fname)
+            tools.write_file(input_fname, entry.GetData())
+
+        output_fname = tools.get_output_filename('mkimage-out.%s' % self.GetUniqueName())
+        if self.mkimage.run_cmd('-d', ":".join(data_filenames), *self._args, output_fname):
+            self.SetContents(tools.read_file(output_fname))
+            return True
+        else:
+            self.record_missing_bintool(self.mkimage)
+            return False
 
     def ReadEntries(self):
         """Read the subnodes to find out what should go in this image"""
