@@ -172,14 +172,14 @@ Flashing
 SD Card
 ^^^^^^^
 
-All Rockchip platforms (except rk3128 which doesn't use SPL) are now
-supporting a single boot image using binman and pad_cat.
+All Rockchip platforms, (except rk3128 which doesn't use SPL) generate a
+SD/MMC full boot image using binman.
 
 To write an image that boots from a SD card (assumed to be /dev/sda):
 
 .. code-block:: bash
 
-        sudo dd if=u-boot-rockchip.bin of=/dev/sda seek=64
+        sudo dd if=u-boot-rockchip-sdmmc.bin of=/dev/sda seek=64
         sync
 
 eMMC
@@ -224,31 +224,19 @@ is u-boot-dtb.img
 SPI
 ^^^
 
-The SPI boot method requires the generation of idbloader.img with help of the mkimage tool.
+Some platforms also generate a SPI flash full boot image, controlled by the
+CONFIG_ROCKCHIP_SPI_IMAGE configuration option.
 
-SPL-alone SPI boot image:
+This image can be copied onto an SD card and written to SPI flash. Note that
+the offset at which the image should be written to is different between SoCs.
 
-.. code-block:: bash
+* RK3399: 0x0
 
-        ./tools/mkimage -n rk3399 -T rkspi -d spl/u-boot-spl.bin idbloader.img
-
-TPL+SPL SPI boot image:
-
-.. code-block:: bash
-
-        ./tools/mkimage -n rk3399 -T rkspi -d tpl/u-boot-tpl.bin:spl/u-boot-spl.bin idbloader.img
-
-Copy SPI boot images into SD card and boot from SD:
-
-.. code-block:: bash
+Replace <offset> with the offset for your SoC::
 
         sf probe
-        load mmc 1:1 $kernel_addr_r idbloader.img
-        sf erase 0 +$filesize
-        sf write $kernel_addr_r 0 ${filesize}
-        load mmc 1:1 ${kernel_addr_r} u-boot.itb
-        sf erase 0x60000 +$filesize
-        sf write $kernel_addr_r 0x60000 ${filesize}
+        load mmc 1:1 $kernel_addr_r u-boot-rockchip-spi.bin
+        sf update $kernel_addr_r <offset> ${filesize}
 
 2. Package the image with Rockchip miniloader
 ---------------------------------------------
