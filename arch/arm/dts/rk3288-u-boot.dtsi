@@ -56,30 +56,6 @@
 	};
 };
 
-#ifdef CONFIG_ROCKCHIP_SPI_IMAGE
-&binman {
-	rom {
-		filename = "u-boot.rom";
-		size = <0x400000>;
-		pad-byte = <0xff>;
-
-		mkimage {
-			args = "-n rk3288 -T rkspi";
-			u-boot-spl {
-			};
-		};
-		u-boot-img {
-			offset = <0x20000>;
-		};
-		u-boot {
-			offset = <0x300000>;
-		};
-		fdtmap {
-		};
-	};
-};
-#endif
-
 &bus_intmem {
 	ddr_sram: ddr-sram@1000 {
 		compatible = "rockchip,rk3288-ddr-sram";

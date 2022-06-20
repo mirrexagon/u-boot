@@ -20,9 +20,11 @@
 			args = "-n", CONFIG_SYS_SOC, "-T", "rksd";
 
 #ifdef CONFIG_TPL
-			u-boot-tpl {};
+			u-boot-tpl {
+			};
 #endif
-			u-boot-spl {};
+			u-boot-spl {
+			};
 		};
 	};
 
@@ -35,14 +37,15 @@
 			type = "blob";
 		};
 
-#ifdef CONFIG_ARM64
+#if defined(CONFIG_SPL_FIT) && defined(CONFIG_ARM64)
 		u-boot-fit {
 			filename = "u-boot.itb";
 			type = "blob";
 			offset = <CONFIG_SPL_PAD_TO>;
 		};
 #else
-		u-boot-img {};
+		u-boot-img {
+		};
 #endif
 	};
 };
@@ -50,25 +53,28 @@
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 &binman {
 	spi-image {
-		filename = "u-boot-rockchip-spi.bin";
+		filename = "u-boot.rom";
 		pad-byte = <0xff>;
 
 		mkimage {
 			args = "-n", CONFIG_SYS_SOC, "-T", "rkspi";
 
 #ifdef CONFIG_TPL
-			u-boot-tpl {};
+			u-boot-tpl {
+			};
 #endif
-			u-boot-spl {};
+			u-boot-spl {
+			};
 		};
 
-#ifdef CONFIG_ARM64
+#if defined(CONFIG_SPL_FIT) && defined(CONFIG_ARM64)
 		blob {
 			filename = "u-boot.itb";
 			offset = <CONFIG_SYS_SPI_U_BOOT_OFFS>;
 		};
 #else
-		u-boot-img {};
+		u-boot-img {
+		};
 #endif
 	};
 };
