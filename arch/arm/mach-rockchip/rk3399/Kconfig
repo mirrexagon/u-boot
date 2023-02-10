@@ -91,6 +91,8 @@ config TARGET_ROCK960_RK3399
 
 config TARGET_ROCKPRO64_RK3399
 	bool "Pine64 Rockpro64 board"
+	select HAS_ROM
+	select ROCKCHIP_SPI_IMAGE
 	help
 	  Rockro64 is SBC produced by Pine64. Key features:
 
